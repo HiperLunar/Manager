@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿
 using System.Data;
 using System.Data.SqlClient;
 
@@ -50,18 +47,21 @@ namespace Manager
             }
         }
 
-        public DataTable getUserTable()  // get user list from User table
+        public User[] GetUserList()  // get user list from User table
         {
             string query = "SELECT * FROM [dbo].[User]";    // SQL query string
 
-            DataTable userList = new DataTable();
+            DataTable table = new DataTable();
             SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
-            adapter.Fill(userList);
+            adapter.Fill(table);
 
-            return userList;
+            User[] list = new User[table.Rows.Count];
+            for (int i = 0; i < table.Rows.Count; i++) { list[i] = new User(table.Rows[i]); }
+
+            return list;
         }
 
-        public bool addUser(User user) // insert user to User table
+        public bool AddUser(User user) // insert user to User table
         {
             try
             {
@@ -79,11 +79,9 @@ namespace Manager
             {
                 return false;
             }
-
-            return true;
         }
 
-        public bool deleteUserById(int id)  // delete user with specific id
+        public bool DeleteUserById(int id)  // delete user with specific id
         {
             try
             {
@@ -100,7 +98,7 @@ namespace Manager
             }
         }
 
-        public bool updateUser(User user)  // update information of user with specific id
+        public bool UpdateUser(User user)  // update information of user with specific id
         {
             try
             {
@@ -121,7 +119,7 @@ namespace Manager
             }
         }
 
-        public DataTable getAddressList()  // get address list from Address table
+        public Address[] GetAddressList()  // get address list from Address table
         {
             string query = "SELECT * FROM [dbo].[Address]";    // SQL query string
 
@@ -129,10 +127,13 @@ namespace Manager
             SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
             adapter.Fill(table);
 
-            return table;
+            Address[] list = new Address[table.Rows.Count];
+            for (int i = 0; i < table.Rows.Count; i++) { list[i] = new Address(table.Rows[i]); }
+
+            return list;
         }
 
-        public bool addAddress(Address address) // insert address to Address table
+        public bool AddAddress(Address address) // insert address to Address table
         {
             try
             {
@@ -152,7 +153,7 @@ namespace Manager
             return true;
         }
 
-        public bool deleteAddressById(int id)  // delete address with specific id
+        public bool DeleteAddressById(int id)  // delete address with specific id
         {
             try
             {
@@ -169,7 +170,7 @@ namespace Manager
             }
         }
 
-        public bool updateAddress(Address address)  // update address with specific id
+        public bool UpdateAddress(Address address)  // update address with specific id
         {
             try
             {
@@ -188,7 +189,7 @@ namespace Manager
             }
         }
 
-        public DataTable getAddressByUserId(int id)
+        public Address[] GetAddressByUserId(int id)
         {
             string query = @"SELECT B.* FROM
                 [UserAddress] AS A
@@ -202,10 +203,15 @@ namespace Manager
 
             DataTable table = new DataTable();
             table.Load(command.ExecuteReader());
-            return table;
+
+
+            Address[] list = new Address[table.Rows.Count];
+            for (int i = 0; i < table.Rows.Count; i++) { list[i] = new Address(table.Rows[i]); }
+
+            return list;
         }
 
-        public bool addUserAddress(int userId, int addressId)
+        public bool AddUserAddress(int userId, int addressId)
         {
             try
             {
@@ -223,7 +229,7 @@ namespace Manager
             }
         }
 
-        public bool deleteUserAddress(int userId, int addressId)
+        public bool DeleteUserAddress(int userId, int addressId)
         {
             try
             {
@@ -241,7 +247,7 @@ namespace Manager
             }
         }
 
-        public DataTable getDepartmentList()
+        public Department[] GetDepartmentList()
         {
             string query = "SELECT * FROM [dbo].[Department]";    // SQL query string
 
@@ -249,10 +255,13 @@ namespace Manager
             SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
             adapter.Fill(table);
 
-            return table;
+            Department[] list = new Department[table.Rows.Count];
+            for (int i = 0; i < table.Rows.Count; i++) { list[i] = new Department(table.Rows[i]); }
+
+            return list;
         }
 
-        public DataTable getDepartmentListByUserId(int id)
+        public Department[] GetDepartmentListByUserId(int id)
         {
             string query = "SELECT * FROM [Department] WHERE UserId=@id";
 
@@ -261,10 +270,14 @@ namespace Manager
 
             DataTable table = new DataTable();
             table.Load(command.ExecuteReader());
-            return table;
+
+            Department[] list = new Department[table.Rows.Count];
+            for (int i = 0; i < table.Rows.Count; i++) { list[i] = new Department(table.Rows[i]); }
+
+            return list;
         }
 
-        public bool addDepartment(Department department) // insert address to Address table
+        public bool AddDepartment(Department department) // insert address to Address table
         {
             try
             {
@@ -285,7 +298,7 @@ namespace Manager
             return true;
         }
 
-        public bool deleteDepartmentById(int id)  // delete address with specific id
+        public bool DeleteDepartmentById(int id)  // delete address with specific id
         {
             try
             {
@@ -302,6 +315,24 @@ namespace Manager
             }
         }
 
-        public bool updateDepartment(Department department)  // update address with specific id
+        public bool UpdateDepartment(Department department)// update address with specific id
+        {
+            try
+            {
+                string query = "UPDATE [Department] SET Name=@name, Description=@desc, UserId=@userId WHERE DepartmentId=@id";    // SQL query string
+
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@name", department.name);
+                command.Parameters.AddWithValue("@desc", department.description);
+                command.Parameters.AddWithValue("@userId", department.userId);
+                command.Parameters.AddWithValue("@id", department.id);
+                int n = command.ExecuteNonQuery();
+                return n > 0;   // if more than 0 rows are affected, the query successeded
+            }
+            catch
+            {
+                return false;
+            }
+        } 
     }
 }

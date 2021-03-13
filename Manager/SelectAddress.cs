@@ -28,7 +28,7 @@ namespace Manager
 
         private void addButton_Click(object sender, EventArgs e)
         {
-            if (!db.addAddress(new Address(0, textBoxInformation.Text, checkBoxIsCommercial.Checked)))
+            if (!db.AddAddress(new Address(0, textBoxInformation.Text, checkBoxIsCommercial.Checked)))
             {
                 MessageBox.Show("Error while inserting to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -40,7 +40,7 @@ namespace Manager
             foreach (ListViewItem item in listViewAddress.SelectedItems)
             {
                 Address address = new Address(item);
-                if (!db.deleteAddressById(address.id))
+                if (!db.DeleteAddressById(address.id))
                 {
                     MessageBox.Show("Error while deleting to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
@@ -55,7 +55,7 @@ namespace Manager
                 Address address = new Address(item);
                 address.info = textBoxInformation.Text;
                 address.isCommercial = checkBoxIsCommercial.Checked;
-                if (!db.updateAddress(address))
+                if (!db.UpdateAddress(address))
                 {
                     MessageBox.Show("Error while deleting to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
@@ -70,40 +70,24 @@ namespace Manager
 
         public void refreshList()
         {
-            DataTable data = db.getAddressList();
+            Address[] data = db.GetAddressList();
 
             listViewAddress.Items.Clear();
 
-            foreach (DataRow row in data.Rows)
-            {
-                Address address = new Address(
-                    Convert.ToInt32(row.ItemArray[0]),
-                    row.ItemArray[1].ToString(),
-                    row.ItemArray[2].ToString() == "True"
-                );
-                listViewAddress.Items.Add(address.GetListViewItem());
-            }
+            foreach (Address address in data) { listViewAddress.Items.Add(address.GetListViewItem()); }
 
-            data = db.getAddressByUserId(user.id);
+            Address[] list = db.GetAddressByUserId(user.id);
 
             listViewUserAddress.Items.Clear();
 
-            foreach (DataRow row in data.Rows)
-            {
-                Address address = new Address(
-                    Convert.ToInt32(row.ItemArray[0]),
-                    row.ItemArray[1].ToString(),
-                    row.ItemArray[2].ToString() == "True"
-                );
-                listViewUserAddress.Items.Add(address.GetListViewItem());
-            }
+            foreach (Address address in list) { listViewUserAddress.Items.Add(address.GetListViewItem()); }
         }
 
         private void buttonMove_Click(object sender, EventArgs e)
         {
             foreach (ListViewItem item in listViewAddress.SelectedItems)
             {
-                if (!db.addUserAddress(user.id, new Address(item).id))
+                if (!db.AddUserAddress(user.id, new Address(item).id))
                 {
                     MessageBox.Show("Error while inserting to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
@@ -115,7 +99,7 @@ namespace Manager
         {
             foreach (ListViewItem item in listViewUserAddress.SelectedItems)
             {
-                if (!db.deleteUserAddress(user.id, new Address(item).id))
+                if (!db.DeleteUserAddress(user.id, new Address(item).id))
                 {
                     MessageBox.Show("Error while inserting to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }

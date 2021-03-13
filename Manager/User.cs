@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
+using System.Data;
 using System.Windows.Forms;
 
 namespace Manager
@@ -31,6 +32,15 @@ namespace Manager
             this.age = Convert.ToInt32(item.SubItems[2].Text);
             this.email = item.SubItems[3].Text;
             this.description = item.SubItems[4].Text;
+        }
+
+        public User(DataRow row)
+        {
+            this.id = Convert.ToInt32(row.ItemArray[0]);
+            this.name = row.ItemArray[1].ToString();
+            this.age = Convert.ToInt32(row.ItemArray[2]);
+            this.email = row.ItemArray[3].ToString();
+            this.description = row.ItemArray[4].ToString();
         }
 
         public ListViewItem GetListViewItem()
@@ -64,6 +74,13 @@ namespace Manager
             this.isCommercial = item.SubItems[2].Text == "True";
         }
 
+        public Address(DataRow row)
+        {
+            this.id = Convert.ToInt32(row.ItemArray[0]);
+            this.info = row.ItemArray[1].ToString();
+            this.isCommercial = row.ItemArray[2].ToString() == "True";
+        }
+
         public ListViewItem GetListViewItem()
         {
             ListViewItem item = new ListViewItem(id.ToString());
@@ -94,6 +111,14 @@ namespace Manager
             this.name = item.SubItems[1].ToString();
             this.description = item.SubItems[2].ToString();
             this.userId = Convert.ToInt32(item.SubItems[3]);
+        }
+
+        public Department(DataRow row)
+        {
+            this.id = Convert.ToInt32(row.ItemArray[0]);
+            this.name = row.ItemArray[1].ToString();
+            this.description = row.ItemArray[2].ToString();
+            this.userId = Convert.ToInt32(row.ItemArray[3]);
         }
 
         public ListViewItem GetListViewItem()

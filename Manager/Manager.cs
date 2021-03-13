@@ -23,7 +23,7 @@ namespace Manager
 
         private void addButton_Click(object sender, EventArgs e)
         {
-            if (!db.addUser(new User(0, textName.Text, Convert.ToInt32(numericAge.Value), textEmail.Text, textDescription.Text)))
+            if (!db.AddUser(new User(0, textName.Text, Convert.ToInt32(numericAge.Value), textEmail.Text, textDescription.Text)))
             {
                 MessageBox.Show("Error while inserting to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -35,7 +35,7 @@ namespace Manager
             foreach (ListViewItem item in userList.SelectedItems)
             {
                 User user = new User(item);
-                if (!db.deleteUserById(user.id))
+                if (!db.DeleteUserById(user.id))
                 {
                     MessageBox.Show("Error while deleting to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
@@ -52,7 +52,7 @@ namespace Manager
                 user.age = Convert.ToInt32(numericAge.Value);
                 user.email = textEmail.Text;
                 user.description = textDescription.Text;
-                if (!db.updateUser(user))
+                if (!db.UpdateUser(user))
                 {
                     MessageBox.Show("Error while deleting to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
@@ -67,21 +67,11 @@ namespace Manager
 
         private void refreshList()
         {
-            DataTable data = db.getUserTable();
+            User[] data = db.GetUserList();
 
             userList.Items.Clear();
 
-            foreach (DataRow row in data.Rows)
-            {
-                User user = new User(
-                    Convert.ToInt32(row.ItemArray[0]),
-                    row.ItemArray[1].ToString(),
-                    Convert.ToInt32(row.ItemArray[2]),
-                    row.ItemArray[3].ToString(),
-                    row.ItemArray[4].ToString()
-                );
-                userList.Items.Add(user.GetListViewItem());
-            }
+            foreach (User user in data) { userList.Items.Add(user.GetListViewItem()); }
         }
 
         private void userList_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
