@@ -49,18 +49,18 @@ namespace Manager
             this.colEmail = new System.Windows.Forms.ColumnHeader();
             this.colDescription = new System.Windows.Forms.ColumnHeader();
             this.listViewAddress = new System.Windows.Forms.ListView();
+            this.columnHeaderAddressId = new System.Windows.Forms.ColumnHeader();
+            this.columnHeaderAddressInformation = new System.Windows.Forms.ColumnHeader();
+            this.columnHeaderAddressIsCommercial = new System.Windows.Forms.ColumnHeader();
             this.label6 = new System.Windows.Forms.Label();
             this.buttonEditAddress = new System.Windows.Forms.Button();
             this.label7 = new System.Windows.Forms.Label();
             this.listViewDepartment = new System.Windows.Forms.ListView();
-            this.buttonEditDepartment = new System.Windows.Forms.Button();
-            this.columnHeaderAddressId = new System.Windows.Forms.ColumnHeader();
-            this.columnHeaderAddressInformation = new System.Windows.Forms.ColumnHeader();
-            this.columnHeaderAddressIsCommercial = new System.Windows.Forms.ColumnHeader();
             this.columnHeaderDepartmentId = new System.Windows.Forms.ColumnHeader();
             this.columnHeaderDepartmentName = new System.Windows.Forms.ColumnHeader();
             this.columnHeaderDepartmentDescription = new System.Windows.Forms.ColumnHeader();
             this.columnHeaderDepartmentUserName = new System.Windows.Forms.ColumnHeader();
+            this.buttonEditDepartment = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.numericAge)).BeginInit();
             this.SuspendLayout();
             // 
@@ -201,7 +201,6 @@ namespace Manager
             this.userList.UseCompatibleStateImageBehavior = false;
             this.userList.View = System.Windows.Forms.View.Details;
             this.userList.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.userList_ItemSelectionChanged);
-            this.userList.DoubleClick += new System.EventHandler(this.userList_DoubleClick);
             // 
             // colId
             // 
@@ -242,6 +241,21 @@ namespace Manager
             this.listViewAddress.UseCompatibleStateImageBehavior = false;
             this.listViewAddress.View = System.Windows.Forms.View.Details;
             // 
+            // columnHeaderAddressId
+            // 
+            this.columnHeaderAddressId.Text = "id";
+            this.columnHeaderAddressId.Width = 30;
+            // 
+            // columnHeaderAddressInformation
+            // 
+            this.columnHeaderAddressInformation.Text = "information";
+            this.columnHeaderAddressInformation.Width = 200;
+            // 
+            // columnHeaderAddressIsCommercial
+            // 
+            this.columnHeaderAddressIsCommercial.Text = "is commercial";
+            this.columnHeaderAddressIsCommercial.Width = 200;
+            // 
             // label6
             // 
             this.label6.AutoSize = true;
@@ -259,6 +273,7 @@ namespace Manager
             this.buttonEditAddress.TabIndex = 23;
             this.buttonEditAddress.Text = "Edit";
             this.buttonEditAddress.UseVisualStyleBackColor = true;
+            this.buttonEditAddress.Click += new System.EventHandler(this.buttonEditAddress_Click);
             // 
             // label7
             // 
@@ -284,6 +299,26 @@ namespace Manager
             this.listViewDepartment.UseCompatibleStateImageBehavior = false;
             this.listViewDepartment.View = System.Windows.Forms.View.Details;
             // 
+            // columnHeaderDepartmentId
+            // 
+            this.columnHeaderDepartmentId.Text = "id";
+            this.columnHeaderDepartmentId.Width = 30;
+            // 
+            // columnHeaderDepartmentName
+            // 
+            this.columnHeaderDepartmentName.Text = "name";
+            this.columnHeaderDepartmentName.Width = 200;
+            // 
+            // columnHeaderDepartmentDescription
+            // 
+            this.columnHeaderDepartmentDescription.Text = "description";
+            this.columnHeaderDepartmentDescription.Width = 150;
+            // 
+            // columnHeaderDepartmentUserName
+            // 
+            this.columnHeaderDepartmentUserName.Text = "owner";
+            this.columnHeaderDepartmentUserName.Width = 70;
+            // 
             // buttonEditDepartment
             // 
             this.buttonEditDepartment.Location = new System.Drawing.Point(1348, 338);
@@ -292,34 +327,7 @@ namespace Manager
             this.buttonEditDepartment.TabIndex = 26;
             this.buttonEditDepartment.Text = "Edit";
             this.buttonEditDepartment.UseVisualStyleBackColor = true;
-            // 
-            // columnHeaderAddressId
-            // 
-            this.columnHeaderAddressId.Text = "id";
-            // 
-            // columnHeaderAddressInformation
-            // 
-            this.columnHeaderAddressInformation.Text = "information";
-            // 
-            // columnHeaderAddressIsCommercial
-            // 
-            this.columnHeaderAddressIsCommercial.Text = "is commercial";
-            // 
-            // columnHeaderDepartmentId
-            // 
-            this.columnHeaderDepartmentId.Text = "id";
-            // 
-            // columnHeaderDepartmentName
-            // 
-            this.columnHeaderDepartmentName.Text = "name";
-            // 
-            // columnHeaderDepartmentDescription
-            // 
-            this.columnHeaderDepartmentDescription.Text = "description";
-            // 
-            // columnHeaderDepartmentUserName
-            // 
-            this.columnHeaderDepartmentUserName.Text = "owner";
+            this.buttonEditDepartment.Click += new System.EventHandler(this.buttonEditDepartment_Click);
             // 
             // Manager
             // 

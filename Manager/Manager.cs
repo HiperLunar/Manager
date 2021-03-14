@@ -23,18 +23,24 @@ namespace Manager
 
         private void addButton_Click(object sender, EventArgs e)
         {
-            if (!db.AddUser(new User(0, textName.Text, Convert.ToInt32(numericAge.Value), textEmail.Text, textDescription.Text)))
+            try
             {
-                MessageBox.Show("Error while inserting to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if (!db.AddUser(new User(0, textName.Text, Convert.ToInt32(numericAge.Value), textEmail.Text, textDescription.Text)))
+                {
+                    MessageBox.Show("Error while inserting to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                refreshList();
+            } catch (ValidationException exception)
+            {
+                MessageBox.Show(exception.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            refreshList();
         }
 
         private void removeButton_Click(object sender, EventArgs e)
         {
             foreach (ListViewItem item in userList.SelectedItems)
             {
-                User user = new User(item);
+                User user = (User) item.Tag;
                 if (!db.DeleteUserById(user.id))
                 {
                     MessageBox.Show("Error while deleting to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -45,19 +51,25 @@ namespace Manager
 
         private void updateButton_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem item in userList.SelectedItems)
+            try
             {
-                User user = new User(item);
-                user.name = textName.Text;
-                user.age = Convert.ToInt32(numericAge.Value);
-                user.email = textEmail.Text;
-                user.description = textDescription.Text;
-                if (!db.UpdateUser(user))
+                foreach (ListViewItem item in userList.SelectedItems)
                 {
-                    MessageBox.Show("Error while deleting to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    User user = (User)item.Tag;
+                    user.name = textName.Text;
+                    user.age = Convert.ToInt32(numericAge.Value);
+                    user.email = textEmail.Text;
+                    user.description = textDescription.Text;
+                    if (!db.UpdateUser(user))
+                    {
+                        MessageBox.Show("Error while updating to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
+                refreshList();
+            } catch (ValidationException exception)
+            {
+                MessageBox.Show(exception.ToString(), "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            refreshList();
         }
 
         private void refreshButton_Click(object sender, EventArgs e)
@@ -70,25 +82,60 @@ namespace Manager
             User[] data = db.GetUserList();
 
             userList.Items.Clear();
+            foreach (User user in data) { userList.Items.Add(user.GetListViewItem()); };
+            refreshAddressList();
+            refreshDepartmentList();
+        }
 
-            foreach (User user in data) { userList.Items.Add(user.GetListViewItem()); }
+        private void refreshAddressList()
+        {
+            if (userList.SelectedItems.Count > 0)
+            {
+                User user = (User) userList.SelectedItems[0].Tag;
+                Address[] addressData = db.GetAddressByUserId(user.id);
+                listViewAddress.Items.Clear();
+                foreach (Address address in addressData) { listViewAddress.Items.Add(address.GetListViewItem()); }
+            }
+        }
+
+        private void refreshDepartmentList()
+        {
+            if (userList.SelectedItems.Count > 0)
+            {
+                User user = (User)userList.SelectedItems[0].Tag;
+                Department[] departmentData = db.GetDepartmentListByUserId(user.id);
+                listViewDepartment.Items.Clear();
+                foreach (Department department in departmentData) { listViewDepartment.Items.Add(department.GetListViewItem()); }
+            }
         }
 
         private void userList_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
-            User user = new User(e.Item);
+            User user = (User) e.Item.Tag;
             textName.Text = user.name;
             numericAge.Value = Convert.ToDecimal(user.age);
             textEmail.Text = user.email;
             textDescription.Text = user.description;
+
+            refreshAddressList();
+            refreshDepartmentList();
         }
 
-        private void userList_DoubleClick(object sender, EventArgs e)
+        private void buttonEditAddress_Click(object sender, EventArgs e)
         {
             ListView.SelectedListViewItemCollection itemList = userList.SelectedItems;
-            User user = new User(itemList[0]);
+            User user;
+            if (itemList.Count > 0) { user = (User)itemList[0].Tag; }
+            else { user = null; }
             Form selectAddressForm = new SelectAddress(user);
             selectAddressForm.ShowDialog();
+            refreshAddressList();
+        }
+
+        private void buttonEditDepartment_Click(object sender, EventArgs e)
+        {
+            SelectDepartment selectDepartment = new SelectDepartment();
+            selectDepartment.ShowDialog();
         }
     }
 }

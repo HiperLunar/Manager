@@ -22,8 +22,9 @@ namespace Manager
         private void SelectAddress_Load(object sender, EventArgs e)
         {
             db.connect();
-            labelTitle.Text = String.Format("Select address for user {0}", user.name);
+            labelTitle.Text = String.Format("Select address for user {0}", (user?.name) ?? "");
             refreshList();
+            refreshComboBoxItems();
         }
 
         private void addButton_Click(object sender, EventArgs e)
@@ -39,7 +40,7 @@ namespace Manager
         {
             foreach (ListViewItem item in listViewAddress.SelectedItems)
             {
-                Address address = new Address(item);
+                Address address = (Address) item.Tag;
                 if (!db.DeleteAddressById(address.id))
                 {
                     MessageBox.Show("Error while deleting to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -52,7 +53,7 @@ namespace Manager
         {
             foreach (ListViewItem item in listViewAddress.SelectedItems)
             {
-                Address address = new Address(item);
+                Address address = (Address)item.Tag;
                 address.info = textBoxInformation.Text;
                 address.isCommercial = checkBoxIsCommercial.Checked;
                 if (!db.UpdateAddress(address))
@@ -63,12 +64,9 @@ namespace Manager
             refreshList();
         }
 
-        private void refreshButton_Click(object sender, EventArgs e)
-        {
-            refreshList();
-        }
+        private void refreshButton_Click(object sender, EventArgs e) { refreshList(); }
 
-        public void refreshList()
+        private void refreshList()
         {
             Address[] data = db.GetAddressList();
 
@@ -76,18 +74,30 @@ namespace Manager
 
             foreach (Address address in data) { listViewAddress.Items.Add(address.GetListViewItem()); }
 
-            Address[] list = db.GetAddressByUserId(user.id);
-
             listViewUserAddress.Items.Clear();
+            if (user != null)
+            {
+                Address[] list = db.GetAddressByUserId(user.id);
 
-            foreach (Address address in list) { listViewUserAddress.Items.Add(address.GetListViewItem()); }
+                listViewUserAddress.Items.Clear();
+
+                foreach (Address address in list) { listViewUserAddress.Items.Add(address.GetListViewItem()); }
+            }
+        }
+
+        private void refreshComboBoxItems()
+        {
+            User[] userData = db.GetUserList();
+            comboBoxUser.Items.Clear();
+            foreach (User user in userData) { comboBoxUser.Items.Add(user); }
+            foreach (User Cuser in comboBoxUser.Items) { if (user?.id == Cuser.id) { comboBoxUser.SelectedItem = Cuser; break; } }
         }
 
         private void buttonMove_Click(object sender, EventArgs e)
         {
             foreach (ListViewItem item in listViewAddress.SelectedItems)
             {
-                if (!db.AddUserAddress(user.id, new Address(item).id))
+                if (!db.AddUserAddress(user.id, ((Address) item.Tag).id))
                 {
                     MessageBox.Show("Error while inserting to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
@@ -99,7 +109,7 @@ namespace Manager
         {
             foreach (ListViewItem item in listViewUserAddress.SelectedItems)
             {
-                if (!db.DeleteUserAddress(user.id, new Address(item).id))
+                if (!db.DeleteUserAddress(user.id, ((Address)item.Tag).id))
                 {
                     MessageBox.Show("Error while inserting to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
@@ -109,14 +119,14 @@ namespace Manager
 
         private void listViewAddress_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
-            Address address= new Address(e.Item);
+            Address address= (Address) e.Item.Tag;
             textBoxInformation.Text = address.info;
             checkBoxIsCommercial.Checked = address.isCommercial;
         }
 
         private void listViewUserAddress_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
-            Address address = new Address(e.Item);
+            Address address = (Address) e.Item.Tag;
             textBoxInformation.Text = address.info;
             checkBoxIsCommercial.Checked = address.isCommercial;
         }
@@ -125,5 +135,7 @@ namespace Manager
         {
             this.Close();
         }
+
+        private void comboBoxUser_SelectionChangeCommitted(object sender, EventArgs e) { user = (User) comboBoxUser.SelectedItem; refreshList(); }
     }
 }

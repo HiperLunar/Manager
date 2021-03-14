@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -59,6 +60,19 @@ namespace Manager
             for (int i = 0; i < table.Rows.Count; i++) { list[i] = new User(table.Rows[i]); }
 
             return list;
+        }
+
+        public User GetUserById(int id)  // get user list from User table
+        {
+            string query = "SELECT * FROM [dbo].[User] WHERE UserId=@id";    // SQL query string
+
+            SqlCommand command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@id", id);
+
+            DataTable table = new DataTable();
+            table.Load(command.ExecuteReader());
+
+            return new User(table.Rows[0]);
         }
 
         public bool AddUser(User user) // insert user to User table
@@ -279,23 +293,19 @@ namespace Manager
 
         public bool AddDepartment(Department department) // insert address to Address table
         {
-            try
-            {
+            //try
+            //{
                 string query = "INSERT INTO [Department] (Name, Description, UserId) VALUES (@name, @desc, @id)";    // SQL query string
 
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@name", department.name);
                 command.Parameters.AddWithValue("@desc", department.description);
-                command.Parameters.AddWithValue("@com", department.userId);
+                command.Parameters.AddWithValue("@id", (object) department.userId ?? DBNull.Value);
                 int n = command.ExecuteNonQuery();
                 return n > 0;   // if more than 0 rows are affected, the query successeded
-            }
-            catch
-            {
-                return false;
-            }
-
-            return true;
+            //} catch {
+            //    return false;
+            //}
         }
 
         public bool DeleteDepartmentById(int id)  // delete address with specific id
