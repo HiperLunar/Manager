@@ -9,6 +9,8 @@ namespace Manager
     {
 
         DBConnection db = new DBConnection();
+        User[] userList;
+
 
         public Manager()
         {
@@ -25,7 +27,10 @@ namespace Manager
         {
             try
             {
-                if (!db.AddUser(new User(0, textName.Text, Convert.ToInt32(numericAge.Value), textEmail.Text, textDescription.Text)))
+                ValidateChildren(ValidationConstraints.Enabled);
+                User user = new User(0, textName.Text, Convert.ToInt32(numericAge.Value), textEmail.Text, textDescription.Text);
+                user.validate();
+                if (!db.AddUser(user))
                 {
                     MessageBox.Show("Error while inserting to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
@@ -38,7 +43,7 @@ namespace Manager
 
         private void removeButton_Click(object sender, EventArgs e)
         {
-            foreach (ListViewItem item in userList.SelectedItems)
+            foreach (ListViewItem item in listViewUser.SelectedItems)
             {
                 User user = (User) item.Tag;
                 if (!db.DeleteUserById(user.id))
@@ -53,13 +58,15 @@ namespace Manager
         {
             try
             {
-                foreach (ListViewItem item in userList.SelectedItems)
+                ValidateChildren(ValidationConstraints.Enabled);
+                foreach (ListViewItem item in listViewUser.SelectedItems)
                 {
                     User user = (User)item.Tag;
                     user.name = textName.Text;
                     user.age = Convert.ToInt32(numericAge.Value);
                     user.email = textEmail.Text;
                     user.description = textDescription.Text;
+                    user.validate();
                     if (!db.UpdateUser(user))
                     {
                         MessageBox.Show("Error while updating to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -79,19 +86,24 @@ namespace Manager
 
         private void refreshList()
         {
-            User[] data = db.GetUserList();
-
-            userList.Items.Clear();
-            foreach (User user in data) { userList.Items.Add(user.GetListViewItem()); };
+            refreshUserList();
             refreshAddressList();
             refreshDepartmentList();
         }
 
+        private void refreshUserList()
+        {
+            userList = db.GetUserList();
+
+            listViewUser.Items.Clear();
+            foreach (User user in userList) { listViewUser.Items.Add(user.GetListViewItem()); };
+        }
+
         private void refreshAddressList()
         {
-            if (userList.SelectedItems.Count > 0)
+            if (listViewUser.SelectedItems.Count > 0)
             {
-                User user = (User) userList.SelectedItems[0].Tag;
+                User user = (User) listViewUser.SelectedItems[0].Tag;
                 Address[] addressData = db.GetAddressByUserId(user.id);
                 listViewAddress.Items.Clear();
                 foreach (Address address in addressData) { listViewAddress.Items.Add(address.GetListViewItem()); }
@@ -100,9 +112,9 @@ namespace Manager
 
         private void refreshDepartmentList()
         {
-            if (userList.SelectedItems.Count > 0)
+            if (listViewUser.SelectedItems.Count > 0)
             {
-                User user = (User)userList.SelectedItems[0].Tag;
+                User user = (User)listViewUser.SelectedItems[0].Tag;
                 Department[] departmentData = db.GetDepartmentListByUserId(user.id);
                 listViewDepartment.Items.Clear();
                 foreach (Department department in departmentData) { listViewDepartment.Items.Add(department.GetListViewItem()); }
@@ -123,7 +135,7 @@ namespace Manager
 
         private void buttonEditAddress_Click(object sender, EventArgs e)
         {
-            ListView.SelectedListViewItemCollection itemList = userList.SelectedItems;
+            ListView.SelectedListViewItemCollection itemList = listViewUser.SelectedItems;
             User user;
             if (itemList.Count > 0) { user = (User)itemList[0].Tag; }
             else { user = null; }
@@ -136,6 +148,82 @@ namespace Manager
         {
             SelectDepartment selectDepartment = new SelectDepartment();
             selectDepartment.ShowDialog();
+        }
+
+        private void textName_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (string.IsNullOrEmpty(textName.Text))
+            {
+                e.Cancel = true;
+                errorProviderManager.SetError(textName, "Name can not be empty");
+            }
+            else if (textName.Text.Length > 50)
+            {
+                e.Cancel = true;
+                errorProviderManager.SetError(textName, "Name can not be grater than 50 chars");
+            }
+            else
+            {
+                e.Cancel = false;
+                errorProviderManager.SetError(textName, null);
+            }
+        }
+
+        private void numericAge_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (numericAge.Value <= 0)
+            {
+                e.Cancel = true;
+                errorProviderManager.SetError(numericAge, "Age can not be 0");
+            }
+            else if (numericAge.Value > 100)
+            {
+                e.Cancel = true;
+                errorProviderManager.SetError(numericAge, "Age can not be greater than 100");
+            }
+            else
+            {
+                e.Cancel = false;
+                errorProviderManager.SetError(numericAge, null);
+            }
+        }
+
+        private void textEmail_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (string.IsNullOrEmpty(textEmail.Text))
+            {
+                e.Cancel = true;
+                errorProviderManager.SetError(textEmail, "Email can not be empty");
+            }
+            else if (textEmail.Text.Length > 50)
+            {
+                e.Cancel = true;
+                errorProviderManager.SetError(textEmail, "Email can not be grater than 50 chars");
+            }
+            else
+            {
+                e.Cancel = false;
+                errorProviderManager.SetError(textEmail, null);
+            }
+        }
+
+        private void textDescription_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (string.IsNullOrEmpty(textDescription.Text))
+            {
+                e.Cancel = true;
+                errorProviderManager.SetError(textDescription, "Description can not be empty");
+            }
+            else if (textDescription.Text.Length > 200)
+            {
+                e.Cancel = true;
+                errorProviderManager.SetError(textDescription, "Description can not be grater than 200 chars");
+            }
+            else
+            {
+                e.Cancel = false;
+                errorProviderManager.SetError(textDescription, null);
+            }
         }
     }
 }

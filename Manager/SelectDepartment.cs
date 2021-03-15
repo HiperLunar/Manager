@@ -87,5 +87,52 @@ namespace Manager
             textBoxDescription.Text = department.description;
             foreach (User user in comboBoxOwner.Items) { if (user.id == department.userId) { comboBoxOwner.SelectedItem = user; break; } }
         }
+
+        private void textBoxName_Validating(object sender, CancelEventArgs e)
+        {
+            if (string.IsNullOrEmpty(textBoxName.Text))
+            {
+                e.Cancel = true;
+                errorProvider.SetError(textBoxName, "Name can not be empty");
+            }
+            else if (textBoxName.Text.Length > 50)
+            {
+                e.Cancel = true;
+                errorProvider.SetError(textBoxName, "Name can not be grater than 50 chars");
+            }
+            else
+            {
+                e.Cancel = false;
+                errorProvider.SetError(textBoxName, null);
+            }
+        }
+
+        private void comboBoxOwner_Validating(object sender, CancelEventArgs e)
+        {
+            if (comboBoxOwner.SelectedItem == null)
+            {
+                e.Cancel = true;
+                errorProvider.SetError(comboBoxOwner, "Must select a user");
+            }
+        }
+
+        private void textBoxDescription_Validating(object sender, CancelEventArgs e)
+        {
+            if (string.IsNullOrEmpty(textBoxDescription.Text))
+            {
+                e.Cancel = true;
+                errorProvider.SetError(textBoxDescription, "Description can not be empty");
+            }
+            else if (textBoxDescription.Text.Length > 200)
+            {
+                e.Cancel = true;
+                errorProvider.SetError(textBoxDescription, "Description can not be grater than 200 chars");
+            }
+            else
+            {
+                e.Cancel = false;
+                errorProvider.SetError(textBoxDescription, null);
+            }
+        }
     }
 }

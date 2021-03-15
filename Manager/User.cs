@@ -20,11 +20,6 @@ namespace Manager
 
         public User(Id id, string name, int age, string email, string description)
         {
-            validateName(name);
-            validateAge(age);
-            validateEmail(email);
-            validateDescription(description);
-
             this.id = id;
             this.name = name;
             this.age = age;
@@ -55,6 +50,14 @@ namespace Manager
         public override string ToString()
         {
             return name;
+        }
+
+        public void validate()
+        {
+            validateName(name);
+            validateAge(age);
+            validateEmail(email);
+            validateDescription(description);
         }
 
         private void validateName(string name) { if (!(name.Length > 0 && name.Length < 50)) { throw new ValidationException("Name field is not valid!"); } }
@@ -104,6 +107,7 @@ namespace Manager
         public string description;
         public Id? userId;
         public User user;
+        public string userName;
 
         public Department(Id id, string name, string description, Id? userId)
         {
@@ -115,11 +119,12 @@ namespace Manager
 
         public Department(DataRow row)
         {
-            this.id = Convert.ToInt32(row.ItemArray[0]);
-            this.name = row.ItemArray[1].ToString();
-            this.description = row.ItemArray[2].ToString();
+            this.id = row.Field<Id>("DepartmentId");
+            this.name = row.Field<string>("Name"); //row.ItemArray[1].ToString();
+            this.description = row.Field<string>("Description");
             if (row.ItemArray[3].Equals(DBNull.Value)) { this.userId = null;  }
             else { this.userId = Convert.ToInt32(row.ItemArray[3]); }
+            this.userName = row.Field<string>("UserName");
         }
 
         public ListViewItem GetListViewItem()
@@ -127,7 +132,7 @@ namespace Manager
             ListViewItem item = new ListViewItem(id.ToString());
             item.SubItems.Add(name);
             item.SubItems.Add(description);
-            item.SubItems.Add(userId.ToString());
+            item.SubItems.Add(userName.ToString());
             item.Tag = this;
             return item;
         }

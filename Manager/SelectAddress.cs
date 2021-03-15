@@ -29,7 +29,9 @@ namespace Manager
 
         private void addButton_Click(object sender, EventArgs e)
         {
-            if (!db.AddAddress(new Address(0, textBoxInformation.Text, checkBoxIsCommercial.Checked)))
+            ValidateChildren(ValidationConstraints.Enabled);
+            Address address = new Address(0, textBoxInformation.Text, checkBoxIsCommercial.Checked);
+            if (!db.AddAddress(address))
             {
                 MessageBox.Show("Error while inserting to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -51,6 +53,7 @@ namespace Manager
 
         private void updateButton_Click(object sender, EventArgs e)
         {
+            ValidateChildren(ValidationConstraints.Enabled);
             foreach (ListViewItem item in listViewAddress.SelectedItems)
             {
                 Address address = (Address)item.Tag;
@@ -137,5 +140,33 @@ namespace Manager
         }
 
         private void comboBoxUser_SelectionChangeCommitted(object sender, EventArgs e) { user = (User) comboBoxUser.SelectedItem; refreshList(); }
+
+        private void comboBoxUser_Validating(object sender, CancelEventArgs e)
+        {
+            if (comboBoxUser.SelectedItem == null)
+            {
+                e.Cancel = true;
+                errorProvider.SetError(comboBoxUser, "Must select a user");
+            }
+        }
+
+        private void textBoxInformation_Validating(object sender, CancelEventArgs e)
+        {
+            if (string.IsNullOrEmpty(textBoxInformation.Text))
+            {
+                e.Cancel = true;
+                errorProvider.SetError(textBoxInformation, "Address information can not be empty");
+            }
+            else if (textBoxInformation.Text.Length > 200)
+            {
+                e.Cancel = true;
+                errorProvider.SetError(textBoxInformation, "Address information can not be grater than 200 chars");
+            }
+            else
+            {
+                e.Cancel = false;
+                errorProvider.SetError(textBoxInformation, null);
+            }
+        }
     }
 }

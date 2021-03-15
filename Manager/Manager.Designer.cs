@@ -29,6 +29,7 @@ namespace Manager
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.addButton = new System.Windows.Forms.Button();
             this.removeButton = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
@@ -42,7 +43,7 @@ namespace Manager
             this.textDescription = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.numericAge = new System.Windows.Forms.NumericUpDown();
-            this.userList = new System.Windows.Forms.ListView();
+            this.listViewUser = new System.Windows.Forms.ListView();
             this.colId = new System.Windows.Forms.ColumnHeader();
             this.colName = new System.Windows.Forms.ColumnHeader();
             this.colAge = new System.Windows.Forms.ColumnHeader();
@@ -61,7 +62,9 @@ namespace Manager
             this.columnHeaderDepartmentDescription = new System.Windows.Forms.ColumnHeader();
             this.columnHeaderDepartmentUserName = new System.Windows.Forms.ColumnHeader();
             this.buttonEditDepartment = new System.Windows.Forms.Button();
+            this.errorProviderManager = new System.Windows.Forms.ErrorProvider(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.numericAge)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.errorProviderManager)).BeginInit();
             this.SuspendLayout();
             // 
             // addButton
@@ -129,6 +132,7 @@ namespace Manager
             this.textName.Name = "textName";
             this.textName.Size = new System.Drawing.Size(150, 31);
             this.textName.TabIndex = 12;
+            this.textName.Validating += new System.ComponentModel.CancelEventHandler(this.textName_Validating);
             // 
             // label3
             // 
@@ -145,6 +149,7 @@ namespace Manager
             this.textEmail.Name = "textEmail";
             this.textEmail.Size = new System.Drawing.Size(150, 31);
             this.textEmail.TabIndex = 16;
+            this.textEmail.Validating += new System.ComponentModel.CancelEventHandler(this.textEmail_Validating);
             // 
             // label4
             // 
@@ -164,6 +169,7 @@ namespace Manager
             this.textDescription.Name = "textDescription";
             this.textDescription.Size = new System.Drawing.Size(223, 106);
             this.textDescription.TabIndex = 18;
+            this.textDescription.Validating += new System.ComponentModel.CancelEventHandler(this.textDescription_Validating);
             // 
             // label5
             // 
@@ -180,27 +186,28 @@ namespace Manager
             this.numericAge.Name = "numericAge";
             this.numericAge.Size = new System.Drawing.Size(150, 31);
             this.numericAge.TabIndex = 19;
+            this.numericAge.Validating += new System.ComponentModel.CancelEventHandler(this.numericAge_Validating);
             // 
-            // userList
+            // listViewUser
             // 
-            this.userList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.listViewUser.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.colId,
             this.colName,
             this.colAge,
             this.colEmail,
             this.colDescription});
-            this.userList.FullRowSelect = true;
-            this.userList.GridLines = true;
-            this.userList.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-            this.userList.HideSelection = false;
-            this.userList.Location = new System.Drawing.Point(29, 198);
-            this.userList.MultiSelect = false;
-            this.userList.Name = "userList";
-            this.userList.Size = new System.Drawing.Size(656, 352);
-            this.userList.TabIndex = 20;
-            this.userList.UseCompatibleStateImageBehavior = false;
-            this.userList.View = System.Windows.Forms.View.Details;
-            this.userList.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.userList_ItemSelectionChanged);
+            this.listViewUser.FullRowSelect = true;
+            this.listViewUser.GridLines = true;
+            this.listViewUser.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.listViewUser.HideSelection = false;
+            this.listViewUser.Location = new System.Drawing.Point(29, 198);
+            this.listViewUser.MultiSelect = false;
+            this.listViewUser.Name = "listViewUser";
+            this.listViewUser.Size = new System.Drawing.Size(656, 352);
+            this.listViewUser.TabIndex = 20;
+            this.listViewUser.UseCompatibleStateImageBehavior = false;
+            this.listViewUser.View = System.Windows.Forms.View.Details;
+            this.listViewUser.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.userList_ItemSelectionChanged);
             // 
             // colId
             // 
@@ -329,10 +336,16 @@ namespace Manager
             this.buttonEditDepartment.UseVisualStyleBackColor = true;
             this.buttonEditDepartment.Click += new System.EventHandler(this.buttonEditDepartment_Click);
             // 
+            // errorProviderManager
+            // 
+            this.errorProviderManager.BlinkRate = 200;
+            this.errorProviderManager.ContainerControl = this;
+            // 
             // Manager
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
             this.ClientSize = new System.Drawing.Size(1470, 581);
             this.Controls.Add(this.buttonEditDepartment);
             this.Controls.Add(this.listViewDepartment);
@@ -340,7 +353,7 @@ namespace Manager
             this.Controls.Add(this.buttonEditAddress);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.listViewAddress);
-            this.Controls.Add(this.userList);
+            this.Controls.Add(this.listViewUser);
             this.Controls.Add(this.numericAge);
             this.Controls.Add(this.textDescription);
             this.Controls.Add(this.label5);
@@ -359,6 +372,7 @@ namespace Manager
             this.Text = "Manager";
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.numericAge)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.errorProviderManager)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -377,7 +391,7 @@ namespace Manager
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.NumericUpDown numericAge;
-        private System.Windows.Forms.ListView userList;
+        private System.Windows.Forms.ListView listViewUser;
         private System.Windows.Forms.ColumnHeader colName;
         private System.Windows.Forms.ColumnHeader colAge;
         private System.Windows.Forms.ColumnHeader colEmail;
@@ -397,6 +411,7 @@ namespace Manager
         private System.Windows.Forms.ColumnHeader columnHeaderDepartmentName;
         private System.Windows.Forms.ColumnHeader columnHeaderDepartmentDescription;
         private System.Windows.Forms.ColumnHeader columnHeaderDepartmentUserName;
+        private System.Windows.Forms.ErrorProvider errorProviderManager;
     }
 }
 

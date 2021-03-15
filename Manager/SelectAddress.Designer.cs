@@ -29,6 +29,7 @@ namespace Manager
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.labelTitle = new System.Windows.Forms.Label();
             this.listViewUserAddress = new System.Windows.Forms.ListView();
             this.columnId2 = new System.Windows.Forms.ColumnHeader();
@@ -50,6 +51,8 @@ namespace Manager
             this.checkBoxIsCommercial = new System.Windows.Forms.CheckBox();
             this.comboBoxUser = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
+            this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
             this.SuspendLayout();
             // 
             // labelTitle
@@ -209,6 +212,7 @@ namespace Manager
             this.textBoxInformation.Name = "textBoxInformation";
             this.textBoxInformation.Size = new System.Drawing.Size(204, 31);
             this.textBoxInformation.TabIndex = 20;
+            this.textBoxInformation.Validating += new System.ComponentModel.CancelEventHandler(this.textBoxInformation_Validating);
             // 
             // checkBoxIsCommercial
             // 
@@ -230,6 +234,7 @@ namespace Manager
             this.comboBoxUser.Size = new System.Drawing.Size(182, 33);
             this.comboBoxUser.TabIndex = 22;
             this.comboBoxUser.SelectionChangeCommitted += new System.EventHandler(this.comboBoxUser_SelectionChangeCommitted);
+            this.comboBoxUser.Validating += new System.ComponentModel.CancelEventHandler(this.comboBoxUser_Validating);
             // 
             // label2
             // 
@@ -240,10 +245,15 @@ namespace Manager
             this.label2.TabIndex = 23;
             this.label2.Text = "User:";
             // 
+            // errorProvider
+            // 
+            this.errorProvider.ContainerControl = this;
+            // 
             // SelectAddress
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
             this.ClientSize = new System.Drawing.Size(917, 573);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.comboBoxUser);
@@ -263,6 +273,7 @@ namespace Manager
             this.Name = "SelectAddress";
             this.Text = "Select address";
             this.Load += new System.EventHandler(this.SelectAddress_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -291,5 +302,6 @@ namespace Manager
         private System.Windows.Forms.CheckBox checkBoxIsCommercial;
         private System.Windows.Forms.ComboBox comboBoxUser;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.ErrorProvider errorProvider;
     }
 }

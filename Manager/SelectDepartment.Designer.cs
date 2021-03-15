@@ -29,6 +29,7 @@ namespace Manager
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -45,6 +46,8 @@ namespace Manager
             this.columnHeaderName = new System.Windows.Forms.ColumnHeader();
             this.columnHeaderDescription = new System.Windows.Forms.ColumnHeader();
             this.columnHeaderOwner = new System.Windows.Forms.ColumnHeader();
+            this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -90,6 +93,7 @@ namespace Manager
             this.textBoxName.Name = "textBoxName";
             this.textBoxName.Size = new System.Drawing.Size(150, 31);
             this.textBoxName.TabIndex = 4;
+            this.textBoxName.Validating += new System.ComponentModel.CancelEventHandler(this.textBoxName_Validating);
             // 
             // textBoxDescription
             // 
@@ -100,6 +104,7 @@ namespace Manager
             this.textBoxDescription.Name = "textBoxDescription";
             this.textBoxDescription.Size = new System.Drawing.Size(234, 70);
             this.textBoxDescription.TabIndex = 5;
+            this.textBoxDescription.Validating += new System.ComponentModel.CancelEventHandler(this.textBoxDescription_Validating);
             // 
             // comboBoxOwner
             // 
@@ -109,6 +114,7 @@ namespace Manager
             this.comboBoxOwner.Name = "comboBoxOwner";
             this.comboBoxOwner.Size = new System.Drawing.Size(182, 33);
             this.comboBoxOwner.TabIndex = 6;
+            this.comboBoxOwner.Validating += new System.ComponentModel.CancelEventHandler(this.comboBoxOwner_Validating);
             // 
             // updateButton
             // 
@@ -188,10 +194,15 @@ namespace Manager
             this.columnHeaderOwner.Text = "Owner";
             this.columnHeaderOwner.Width = 100;
             // 
+            // errorProvider
+            // 
+            this.errorProvider.ContainerControl = this;
+            // 
             // SelectDepartment
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
             this.ClientSize = new System.Drawing.Size(788, 696);
             this.Controls.Add(this.listViewDepartment);
             this.Controls.Add(this.updateButton);
@@ -208,6 +219,7 @@ namespace Manager
             this.Name = "SelectDepartment";
             this.Text = "Department";
             this.Load += new System.EventHandler(this.SelectDepartment_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -231,5 +243,6 @@ namespace Manager
         private System.Windows.Forms.ColumnHeader columnHeaderName;
         private System.Windows.Forms.ColumnHeader columnHeaderDescription;
         private System.Windows.Forms.ColumnHeader columnHeaderOwner;
+        private System.Windows.Forms.ErrorProvider errorProvider;
     }
 }

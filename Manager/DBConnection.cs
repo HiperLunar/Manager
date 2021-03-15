@@ -263,7 +263,10 @@ namespace Manager
 
         public Department[] GetDepartmentList()
         {
-            string query = "SELECT * FROM [dbo].[Department]";    // SQL query string
+            string query = @"SELECT A.*, B.Name AS UserName
+                FROM [Department] AS A
+                LEFT JOIN [User] AS B
+                ON A.UserId = B.UserId";    // SQL query string
 
             DataTable table = new DataTable();
             SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
@@ -277,7 +280,11 @@ namespace Manager
 
         public Department[] GetDepartmentListByUserId(int id)
         {
-            string query = "SELECT * FROM [Department] WHERE UserId=@id";
+            string query = @"SELECT A.*, B.Name AS UserName
+                FROM [Department] AS A
+                LEFT JOIN [User] AS B
+                ON A.UserId = B.UserId
+                WHERE A.UserId=@id";
 
             SqlCommand command = new SqlCommand(query, connection);
             command.Parameters.AddWithValue("@id", id);
@@ -343,6 +350,6 @@ namespace Manager
             {
                 return false;
             }
-        } 
+        }
     }
 }
