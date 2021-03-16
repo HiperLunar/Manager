@@ -6,6 +6,8 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
+using Id = System.Guid;
+
 namespace Manager
 {
     public partial class SelectAddress : Form
@@ -21,7 +23,14 @@ namespace Manager
 
         private void SelectAddress_Load(object sender, EventArgs e)
         {
-            db.connect();
+            try
+            {
+                db.connect();
+            } catch
+            {
+                MessageBox.Show("Could not connect to SQL service", "Fatal error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                System.Windows.Forms.Application.Exit();
+            }
             labelTitle.Text = String.Format("Select address for user {0}", (user?.name) ?? "");
             refreshList();
             refreshComboBoxItems();
@@ -29,11 +38,12 @@ namespace Manager
 
         private void addButton_Click(object sender, EventArgs e)
         {
-            ValidateChildren(ValidationConstraints.Enabled);
-            Address address = new Address(0, textBoxInformation.Text, checkBoxIsCommercial.Checked);
-            if (!db.AddAddress(address))
+            if (!ValidateChildren(ValidationConstraints.Enabled)) { return; };
+            Address address = new Address(null, textBoxInformation.Text, checkBoxIsCommercial.Checked);
+            DBResult result = db.AddAddress(address);
+            if (!(bool) result.result)
             {
-                MessageBox.Show("Error while inserting to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(result.reason, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             refreshList();
         }
@@ -43,9 +53,10 @@ namespace Manager
             foreach (ListViewItem item in listViewAddress.SelectedItems)
             {
                 Address address = (Address) item.Tag;
-                if (!db.DeleteAddressById(address.id))
+                DBResult result = db.DeleteAddressById(address.id);
+                if (!(bool) result.result)
                 {
-                    MessageBox.Show("Error while deleting to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(result.reason, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             refreshList();
@@ -53,15 +64,16 @@ namespace Manager
 
         private void updateButton_Click(object sender, EventArgs e)
         {
-            ValidateChildren(ValidationConstraints.Enabled);
+            if (!ValidateChildren(ValidationConstraints.Enabled)) { return; };
             foreach (ListViewItem item in listViewAddress.SelectedItems)
             {
                 Address address = (Address)item.Tag;
                 address.info = textBoxInformation.Text;
                 address.isCommercial = checkBoxIsCommercial.Checked;
-                if (!db.UpdateAddress(address))
+                DBResult result = db.UpdateAddress(address);
+                if (!(bool) result.result)
                 {
-                    MessageBox.Show("Error while deleting to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(result.reason, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             refreshList();
@@ -80,7 +92,7 @@ namespace Manager
             listViewUserAddress.Items.Clear();
             if (user != null)
             {
-                Address[] list = db.GetAddressByUserId(user.id);
+                Address[] list = db.GetAddressByUserId(user.id ?? throw new Exception());
 
                 listViewUserAddress.Items.Clear();
 
@@ -98,11 +110,13 @@ namespace Manager
 
         private void buttonMove_Click(object sender, EventArgs e)
         {
+            if (!ValidateChildren(ValidationConstraints.Enabled)) { return; };
             foreach (ListViewItem item in listViewAddress.SelectedItems)
             {
-                if (!db.AddUserAddress(user.id, ((Address) item.Tag).id))
+                DBResult result = db.AddUserAddress(user.id ?? throw new Exception(), ((Address)item.Tag).id);
+                if (!(bool) result.result)
                 {
-                    MessageBox.Show("Error while inserting to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(result.reason, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             refreshList();
@@ -112,9 +126,10 @@ namespace Manager
         {
             foreach (ListViewItem item in listViewUserAddress.SelectedItems)
             {
-                if (!db.DeleteUserAddress(user.id, ((Address)item.Tag).id))
+                DBResult result = db.DeleteUserAddress(user.id ?? throw new Exception(), ((Address)item.Tag).id);
+                if (!(bool) result.result)
                 {
-                    MessageBox.Show("Error while inserting to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(result.reason, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             refreshList();
@@ -132,6 +147,7 @@ namespace Manager
             Address address = (Address) e.Item.Tag;
             textBoxInformation.Text = address.info;
             checkBoxIsCommercial.Checked = address.isCommercial;
+            ValidateChildren(ValidationConstraints.Enabled);
         }
 
         private void buttonOk_Click(object sender, EventArgs e)

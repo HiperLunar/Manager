@@ -2,23 +2,26 @@
 using System;
 using System.Data;
 using System.Data.SqlClient;
-
+using Id = System.Guid;
 
 
 namespace Manager
 {
+    public struct DBResult
+    {
+        public object result;
+        public string reason;
+    }
+
     public class DBConnection
     {
         /*
          * 
-         * A classe DBConnection estabelece uma conexão com o banco de dados 
-         * 
-         * TODO:
-         *   A classe DBConnection tem muitos metodos parecidos que podem ser unificados
+         * The class DBConnection establish a connection with the data base 
          * 
          */
 
-        private static string ConnectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=D:\\Users\\marco\\Desktop\\felipe\\Workspace\\Manager\\Manager\\Database1.mdf;Integrated Security=True";
+        private static readonly string ConnectionString = String.Format("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename={0}\\Database1.mdf;Integrated Security=True", System.IO.Directory.GetCurrentDirectory());
         private SqlConnection connection = new SqlConnection(ConnectionString);
 
         public bool connect()
@@ -27,14 +30,7 @@ namespace Manager
         {
             if (connection.State != System.Data.ConnectionState.Open)   // if not connected...
             {
-                try
-                {
-                    connection.Open();  // connect
-                }
-                catch
-                {
-                    return false;
-                }
+                connection.Open();  // connect
             }
             return true;
         }
@@ -62,9 +58,9 @@ namespace Manager
             return list;
         }
 
-        public User GetUserById(int id)  // get user list from User table
+        public User GetUserById(Id id)  // get user list from User table
         {
-            string query = "SELECT * FROM [dbo].[User] WHERE UserId=@id";    // SQL query string
+            string query = "SELECT * FROM [dbo].[User] WHERE Id=@id";    // SQL query string
 
             SqlCommand command = new SqlCommand(query, connection);
             command.Parameters.AddWithValue("@id", id);
@@ -75,7 +71,7 @@ namespace Manager
             return new User(table.Rows[0]);
         }
 
-        public bool AddUser(User user) // insert user to User table
+        public DBResult AddUser(User user) // insert user to User table
         {
             try
             {
@@ -87,36 +83,55 @@ namespace Manager
                 command.Parameters.AddWithValue("@email", user.email);
                 command.Parameters.AddWithValue("description", user.description);
                 int n = command.ExecuteNonQuery();
-                return n > 0;   // if more than 0 rows are affected, the query successeded
+                return new DBResult { result = true };   // if more than 0 rows are affected, the query successeded
             }
-            catch
+            catch (SqlException e)
             {
-                return false;
+                if (e.ErrorCode == -2146232060)
+                {
+                    return new DBResult { result = false, reason = "User already exists" };
+                }
+                return new DBResult { result = false, reason = "Unknown SQL error" };
+            }
+            catch (Exception e)
+            {
+                return new DBResult { result = false, reason = "Unknown error\n"+e.Message };
             }
         }
 
-        public bool DeleteUserById(int id)  // delete user with specific id
+        public DBResult DeleteUserById(Id id)  // delete user with specific id
         {
             try
             {
-                string query = "DELETE FROM [User] WHERE UserId=@id";    // SQL query string
+                string query = "DELETE FROM [User] WHERE Id=@id";    // SQL query string
 
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@id", id);
                 int n = command.ExecuteNonQuery();
-                return n > 0;   // if more than 0 rows are affected, the query successeded
+                if (n > 0)
+                {
+                    return new DBResult { result = true };   // if more than 0 rows are affected, the query successeded
+                } else
+                {
+                    return new DBResult { result = false, reason = "User does not exists" };
+
+                }
             }
-            catch
+            catch (SqlException)
             {
-                return false;
+                return new DBResult { result = false, reason = "Unknown SQL error" };
+            }
+            catch (Exception e)
+            {
+                return new DBResult { result = false, reason = "Unknown error\n" + e.Message };
             }
         }
 
-        public bool UpdateUser(User user)  // update information of user with specific id
+        public DBResult UpdateUser(User user)  // update information of user with specific id
         {
             try
             {
-                string query = "UPDATE [User] SET Name=@name, Age=@age, Email=@email, Description=@description WHERE UserId=@id";    // SQL query string
+                string query = "UPDATE [User] SET Name=@name, Age=@age, Email=@email, Description=@description WHERE Id=@id";    // SQL query string
 
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@name", user.name);
@@ -125,11 +140,19 @@ namespace Manager
                 command.Parameters.AddWithValue("@description", user.description);
                 command.Parameters.AddWithValue("@id", user.id);
                 int n = command.ExecuteNonQuery();
-                return n > 0;   // if more than 0 rows are affected, the query successeded
+                return new DBResult { result = true };   // if more than 0 rows are affected, the query successeded
             }
-            catch
+            catch (SqlException e)
             {
-                return false;
+                if (e.ErrorCode == -2146232060)
+                {
+                    return new DBResult { result = false, reason = "User already exists" };
+                }
+                return new DBResult { result = false, reason = "Unknown SQL error" };
+            }
+            catch (Exception e)
+            {
+                return new DBResult { result = false, reason = "Unknown error\n" + e.Message };
             }
         }
 
@@ -147,7 +170,7 @@ namespace Manager
             return list;
         }
 
-        public bool AddAddress(Address address) // insert address to Address table
+        public DBResult AddAddress(Address address) // insert address to Address table
         {
             try
             {
@@ -157,60 +180,86 @@ namespace Manager
                 command.Parameters.AddWithValue("@info", address.info);
                 command.Parameters.AddWithValue("@com", address.isCommercial);
                 int n = command.ExecuteNonQuery();
-                return n > 0;   // if more than 0 rows are affected, the query successeded
+                return new DBResult { result = true };   // if more than 0 rows are affected, the query successeded
             }
-            catch
+            catch (SqlException e)
             {
-                return false;
+                if (e.ErrorCode == -2146232060)
+                {
+                    return new DBResult { result = false, reason = "Address already exists" };
+                }
+                return new DBResult { result = false, reason = "Unknown SQL error" };
             }
-
-            return true;
+            catch (Exception e)
+            {
+                return new DBResult { result = false, reason = "Unknown error\n" + e.Message };
+            }
         }
 
-        public bool DeleteAddressById(int id)  // delete address with specific id
+        public DBResult DeleteAddressById(Id id)  // delete address with specific id
         {
             try
             {
-                string query = "DELETE FROM [Address] WHERE AddressId=@id";    // SQL query string
+                string query = "DELETE FROM [Address] WHERE Id=@id";    // SQL query string
 
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@id", id);
                 int n = command.ExecuteNonQuery();
-                return n > 0;   // if more than 0 rows are affected, the query successeded
+                if (n > 0)
+                {
+                    return new DBResult { result = true };   // if more than 0 rows are affected, the query successeded
+                }
+                else
+                {
+                    return new DBResult { result = false, reason = "Address does not exists" };
+
+                }
             }
-            catch
+            catch (SqlException)
             {
-                return false;
+                return new DBResult { result = false, reason = "Unknown SQL error" };
+            }
+            catch (Exception e)
+            {
+                return new DBResult { result = false, reason = "Unknown error\n" + e.Message };
             }
         }
 
-        public bool UpdateAddress(Address address)  // update address with specific id
+        public DBResult UpdateAddress(Address address)  // update address with specific id
         {
             try
             {
-                string query = "UPDATE [Address] SET AddressInfo=@info, IsCommercial=@com WHERE AddressId=@id";    // SQL query string
+                string query = "UPDATE [Address] SET AddressInfo=@info, IsCommercial=@com WHERE Id=@id";    // SQL query string
 
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@info", address.info);
                 command.Parameters.AddWithValue("@com", address.isCommercial);
                 command.Parameters.AddWithValue("@id", address.id);
                 int n = command.ExecuteNonQuery();
-                return n > 0;   // if more than 0 rows are affected, the query successeded
+                return new DBResult { result = true };   // if more than 0 rows are affected, the query successeded
             }
-            catch
+            catch (SqlException e)
             {
-                return false;
+                if (e.ErrorCode == -2146232060)
+                {
+                    return new DBResult { result = false, reason = "Address already exists" };
+                }
+                return new DBResult { result = false, reason = "Unknown SQL error" };
+            }
+            catch (Exception e)
+            {
+                return new DBResult { result = false, reason = "Unknown error\n" + e.Message };
             }
         }
 
-        public Address[] GetAddressByUserId(int id)
+        public Address[] GetAddressByUserId(Id id)
         {
             string query = @"SELECT B.* FROM
                 [UserAddress] AS A
-                INNER JOIN[Address] AS B
-                ON[A].[AddressId] = [B].[AddressId]
-                WHERE A.UserId=@id
-                ORDER BY B.AddressId";
+                INNER JOIN [Address] AS B
+                ON [A].[AddressId] = [B].[Id]
+                WHERE [A].[UserId]=@id
+                ORDER BY B.[Id]";
 
             SqlCommand command = new SqlCommand(query, connection);
             command.Parameters.AddWithValue("@id", id);
@@ -225,7 +274,7 @@ namespace Manager
             return list;
         }
 
-        public bool AddUserAddress(int userId, int addressId)
+        public DBResult AddUserAddress(Id userId, Id addressId)
         {
             try
             {
@@ -235,15 +284,23 @@ namespace Manager
                 command.Parameters.AddWithValue("@user_id", userId);
                 command.Parameters.AddWithValue("@address_id", addressId);
                 int n = command.ExecuteNonQuery();
-                return n > 0;   // if more than 0 rows are affected, the query successeded
+                return new DBResult { result = (object) true };   // if more than 0 rows are affected, the query successeded
             }
-            catch
+            catch (SqlException e)
             {
-                return false;
+                if (e.ErrorCode == -2146232060)
+                {
+                    return new DBResult { result = (object) false, reason = "This address is already assigned to the user" };
+                }
+                return new DBResult { result = (object)false, reason = "Unknown SQL error" };
+            }
+            catch (Exception e)
+            {
+                return new DBResult { result = (object)false, reason = "Unknown error\n" + e.Message };
             }
         }
 
-        public bool DeleteUserAddress(int userId, int addressId)
+        public DBResult DeleteUserAddress(Id userId, Id addressId)
         {
             try
             {
@@ -253,11 +310,23 @@ namespace Manager
                 command.Parameters.AddWithValue("@user_id", userId);
                 command.Parameters.AddWithValue("@address_id", addressId);
                 int n = command.ExecuteNonQuery();
-                return n > 0;   // if more than 0 rows are affected, the query successeded
+                if (n > 0)
+                {
+                    return new DBResult { result = true };   // if more than 0 rows are affected, the query successeded
+                }
+                else
+                {
+                    return new DBResult { result = false, reason = "Address does not exists" };
+
+                }
             }
-            catch
+            catch (SqlException)
             {
-                return false;
+                return new DBResult { result = false, reason = "Unknown SQL error" };
+            }
+            catch (Exception e)
+            {
+                return new DBResult { result = false, reason = "Unknown error\n" + e.Message };
             }
         }
 
@@ -266,7 +335,7 @@ namespace Manager
             string query = @"SELECT A.*, B.Name AS UserName
                 FROM [Department] AS A
                 LEFT JOIN [User] AS B
-                ON A.UserId = B.UserId";    // SQL query string
+                ON A.UserId = B.Id";    // SQL query string
 
             DataTable table = new DataTable();
             SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
@@ -278,12 +347,12 @@ namespace Manager
             return list;
         }
 
-        public Department[] GetDepartmentListByUserId(int id)
+        public Department[] GetDepartmentListByUserId(Id id)
         {
             string query = @"SELECT A.*, B.Name AS UserName
                 FROM [Department] AS A
                 LEFT JOIN [User] AS B
-                ON A.UserId = B.UserId
+                ON A.UserId = B.Id
                 WHERE A.UserId=@id";
 
             SqlCommand command = new SqlCommand(query, connection);
@@ -298,10 +367,10 @@ namespace Manager
             return list;
         }
 
-        public bool AddDepartment(Department department) // insert address to Address table
+        public DBResult AddDepartment(Department department) // insert address to Address table
         {
-            //try
-            //{
+            try
+            {
                 string query = "INSERT INTO [Department] (Name, Description, UserId) VALUES (@name, @desc, @id)";    // SQL query string
 
                 SqlCommand command = new SqlCommand(query, connection);
@@ -309,34 +378,56 @@ namespace Manager
                 command.Parameters.AddWithValue("@desc", department.description);
                 command.Parameters.AddWithValue("@id", (object) department.userId ?? DBNull.Value);
                 int n = command.ExecuteNonQuery();
-                return n > 0;   // if more than 0 rows are affected, the query successeded
-            //} catch {
-            //    return false;
-            //}
+                return new DBResult { result = (object)true };   // if more than 0 rows are affected, the query successeded
+            }
+            catch (SqlException e)
+            {
+                if (e.ErrorCode == -2146232060)
+                {
+                    return new DBResult { result = (object)false, reason = "Department already exists" };
+                }
+                return new DBResult { result = (object)false, reason = "Unknown SQL error" };
+            }
+            catch (Exception e)
+            {
+                return new DBResult { result = (object)false, reason = "Unknown error\n" + e.Message };
+            }
         }
 
-        public bool DeleteDepartmentById(int id)  // delete address with specific id
+        public DBResult DeleteDepartmentById(Id id)  // delete address with specific id
         {
             try
             {
-                string query = "DELETE FROM [Department] WHERE DepartmentId=@id";    // SQL query string
+                string query = "DELETE FROM [Department] WHERE Id=@id";    // SQL query string
 
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@id", id);
                 int n = command.ExecuteNonQuery();
-                return n > 0;   // if more than 0 rows are affected, the query successeded
+                if (n > 0)
+                {
+                    return new DBResult { result = true };   // if more than 0 rows are affected, the query successeded
+                }
+                else
+                {
+                    return new DBResult { result = false, reason = "Address does not exists" };
+
+                }
             }
-            catch
+            catch (SqlException)
             {
-                return false;
+                return new DBResult { result = false, reason = "Unknown SQL error" };
+            }
+            catch (Exception e)
+            {
+                return new DBResult { result = false, reason = "Unknown error\n" + e.Message };
             }
         }
 
-        public bool UpdateDepartment(Department department)// update address with specific id
+        public DBResult UpdateDepartment(Department department)// update address with specific id
         {
             try
             {
-                string query = "UPDATE [Department] SET Name=@name, Description=@desc, UserId=@userId WHERE DepartmentId=@id";    // SQL query string
+                string query = "UPDATE [Department] SET Name=@name, Description=@desc, UserId=@userId WHERE Id=@id";    // SQL query string
 
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@name", department.name);
@@ -344,11 +435,19 @@ namespace Manager
                 command.Parameters.AddWithValue("@userId", department.userId);
                 command.Parameters.AddWithValue("@id", department.id);
                 int n = command.ExecuteNonQuery();
-                return n > 0;   // if more than 0 rows are affected, the query successeded
+                return new DBResult { result = (object)true };   // if more than 0 rows are affected, the query successeded
             }
-            catch
+            catch (SqlException e)
             {
-                return false;
+                if (e.ErrorCode == -2146232060)
+                {
+                    return new DBResult { result = (object)false, reason = "This address is already assigned to the user" };
+                }
+                return new DBResult { result = (object)false, reason = "Unknown SQL error" };
+            }
+            catch (Exception e)
+            {
+                return new DBResult { result = (object)false, reason = "Unknown error\n" + e.Message };
             }
         }
     }

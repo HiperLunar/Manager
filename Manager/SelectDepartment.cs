@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using Id = System.Guid;
 
 namespace Manager
 {
@@ -26,12 +27,14 @@ namespace Manager
 
         private void addButton_Click(object sender, EventArgs e)
         {
-            int? id;
+            if (!ValidateChildren(ValidationConstraints.Enabled)) { return; }
+            Id? id;
             if (comboBoxOwner.SelectedItem == null) { id = null; }
             else { id = ((User)comboBoxOwner.SelectedItem).id; }
-            if (!db.AddDepartment(new Department(0, textBoxName.Text, textBoxDescription.Text, id)))
+            DBResult result = db.AddDepartment(new Department(null, textBoxName.Text, textBoxDescription.Text, id));
+            if (!(bool) result.result)
             {
-                MessageBox.Show("Error while inserting to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(result.reason, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             refreshList();
         }
@@ -41,9 +44,10 @@ namespace Manager
             foreach (ListViewItem item in listViewDepartment.SelectedItems)
             {
                 Department department = (Department) item.Tag;
-                if (!db.DeleteDepartmentById(department.id))
+                DBResult result = db.DeleteDepartmentById(department.id);
+                if (!(bool) result.result)
                 {
-                    MessageBox.Show("Error while deleting to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(result.reason, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             refreshList();
@@ -51,14 +55,16 @@ namespace Manager
 
         private void updateButton_Click(object sender, EventArgs e)
         {
+            if (!ValidateChildren(ValidationConstraints.Enabled)) { return; }
             foreach (ListViewItem item in listViewDepartment.SelectedItems) {
                 Department department = (Department) item.Tag;
                 department.name = textBoxName.Text;
                 department.description = textBoxDescription.Text;
                 department.userId = ((User)comboBoxOwner.SelectedItem).id;
-                if (!db.UpdateDepartment(department))
+                DBResult result = db.UpdateDepartment(department);
+                if (!(bool) result.result)
                 {
-                    MessageBox.Show("Error while updating to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(result.reason, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 refreshList();
             }
@@ -85,7 +91,9 @@ namespace Manager
             Department department = (Department)e.Item.Tag;
             textBoxName.Text = department.name;
             textBoxDescription.Text = department.description;
+            comboBoxOwner.SelectedItem = null;
             foreach (User user in comboBoxOwner.Items) { if (user.id == department.userId) { comboBoxOwner.SelectedItem = user; break; } }
+            ValidateChildren(ValidationConstraints.Enabled);
         }
 
         private void textBoxName_Validating(object sender, CancelEventArgs e)
@@ -107,23 +115,9 @@ namespace Manager
             }
         }
 
-        private void comboBoxOwner_Validating(object sender, CancelEventArgs e)
-        {
-            if (comboBoxOwner.SelectedItem == null)
-            {
-                e.Cancel = true;
-                errorProvider.SetError(comboBoxOwner, "Must select a user");
-            }
-        }
-
         private void textBoxDescription_Validating(object sender, CancelEventArgs e)
         {
-            if (string.IsNullOrEmpty(textBoxDescription.Text))
-            {
-                e.Cancel = true;
-                errorProvider.SetError(textBoxDescription, "Description can not be empty");
-            }
-            else if (textBoxDescription.Text.Length > 200)
+            if (textBoxDescription.Text.Length > 200)
             {
                 e.Cancel = true;
                 errorProvider.SetError(textBoxDescription, "Description can not be grater than 200 chars");

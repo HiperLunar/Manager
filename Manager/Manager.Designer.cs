@@ -370,7 +370,7 @@ namespace Manager
             this.MaximizeBox = false;
             this.Name = "Manager";
             this.Text = "Manager";
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Load += new System.EventHandler(this.Manager_Load);
             ((System.ComponentModel.ISupportInitialize)(this.numericAge)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.errorProviderManager)).EndInit();
             this.ResumeLayout(false);

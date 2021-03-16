@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Data;
-using System.Data.SqlClient;
 using System.Windows.Forms;
 
 namespace Manager
@@ -17,7 +15,7 @@ namespace Manager
             InitializeComponent();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void Manager_Load(object sender, EventArgs e)
         {
             db.connect();
             refreshList();
@@ -27,12 +25,14 @@ namespace Manager
         {
             try
             {
-                ValidateChildren(ValidationConstraints.Enabled);
-                User user = new User(0, textName.Text, Convert.ToInt32(numericAge.Value), textEmail.Text, textDescription.Text);
-                user.validate();
-                if (!db.AddUser(user))
+                if (!ValidateChildren(ValidationConstraints.Enabled)) { return; }   // validate form entries
+
+                User user = new User(null, textName.Text, Convert.ToInt32(numericAge.Value), textEmail.Text, textDescription.Text);
+                user.validate();  // validate information
+                DBResult result = db.AddUser(user); //  Sql query
+                if (!(bool) result.result)
                 {
-                    MessageBox.Show("Error while inserting to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(result.reason, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 refreshList();
             } catch (ValidationException exception)
@@ -46,10 +46,15 @@ namespace Manager
             foreach (ListViewItem item in listViewUser.SelectedItems)
             {
                 User user = (User) item.Tag;
-                if (!db.DeleteUserById(user.id))
+                try
                 {
-                    MessageBox.Show("Error while deleting to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                    DBResult result = db.DeleteUserById(user.id ?? throw new Exception());
+                    if (!(bool)result.result)
+                    {
+                        MessageBox.Show(result.reason, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                } catch { return; }
+                    
             }
             refreshList();
         }
@@ -58,7 +63,8 @@ namespace Manager
         {
             try
             {
-                ValidateChildren(ValidationConstraints.Enabled);
+                if (!ValidateChildren(ValidationConstraints.Enabled)) { return; }
+
                 foreach (ListViewItem item in listViewUser.SelectedItems)
                 {
                     User user = (User)item.Tag;
@@ -67,15 +73,16 @@ namespace Manager
                     user.email = textEmail.Text;
                     user.description = textDescription.Text;
                     user.validate();
-                    if (!db.UpdateUser(user))
+                    DBResult result = db.UpdateUser(user);
+                    if (!(bool) result.result)
                     {
-                        MessageBox.Show("Error while updating to database :(", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(result.reason, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
                 refreshList();
             } catch (ValidationException exception)
             {
-                MessageBox.Show(exception.ToString(), "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(exception.Message, "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -104,7 +111,7 @@ namespace Manager
             if (listViewUser.SelectedItems.Count > 0)
             {
                 User user = (User) listViewUser.SelectedItems[0].Tag;
-                Address[] addressData = db.GetAddressByUserId(user.id);
+                Address[] addressData = db.GetAddressByUserId(user.id ?? throw new Exception());
                 listViewAddress.Items.Clear();
                 foreach (Address address in addressData) { listViewAddress.Items.Add(address.GetListViewItem()); }
             }
@@ -115,7 +122,7 @@ namespace Manager
             if (listViewUser.SelectedItems.Count > 0)
             {
                 User user = (User)listViewUser.SelectedItems[0].Tag;
-                Department[] departmentData = db.GetDepartmentListByUserId(user.id);
+                Department[] departmentData = db.GetDepartmentListByUserId(user.id ?? throw new Exception());
                 listViewDepartment.Items.Clear();
                 foreach (Department department in departmentData) { listViewDepartment.Items.Add(department.GetListViewItem()); }
             }
@@ -131,6 +138,7 @@ namespace Manager
 
             refreshAddressList();
             refreshDepartmentList();
+            if (!ValidateChildren(ValidationConstraints.Enabled)) {}
         }
 
         private void buttonEditAddress_Click(object sender, EventArgs e)
@@ -148,6 +156,7 @@ namespace Manager
         {
             SelectDepartment selectDepartment = new SelectDepartment();
             selectDepartment.ShowDialog();
+            refreshDepartmentList();
         }
 
         private void textName_Validating(object sender, System.ComponentModel.CancelEventArgs e)
@@ -209,12 +218,7 @@ namespace Manager
 
         private void textDescription_Validating(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (string.IsNullOrEmpty(textDescription.Text))
-            {
-                e.Cancel = true;
-                errorProviderManager.SetError(textDescription, "Description can not be empty");
-            }
-            else if (textDescription.Text.Length > 200)
+            if (textDescription.Text.Length > 200)
             {
                 e.Cancel = true;
                 errorProviderManager.SetError(textDescription, "Description can not be grater than 200 chars");

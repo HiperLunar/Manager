@@ -114,7 +114,6 @@ namespace Manager
             this.comboBoxOwner.Name = "comboBoxOwner";
             this.comboBoxOwner.Size = new System.Drawing.Size(182, 33);
             this.comboBoxOwner.TabIndex = 6;
-            this.comboBoxOwner.Validating += new System.ComponentModel.CancelEventHandler(this.comboBoxOwner_Validating);
             // 
             // updateButton
             // 
