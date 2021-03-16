@@ -6,7 +6,7 @@ namespace Manager
     public partial class Manager : Form
     {
 
-        DBConnection db = new DBConnection();
+        DBConnection db;
         User[] userList;
 
 
@@ -17,8 +17,18 @@ namespace Manager
 
         private void Manager_Load(object sender, EventArgs e)
         {
-            db.connect();
-            refreshList();
+            try
+            {
+                db = new DBConnection();
+                db.connect();
+                refreshList();
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show("Could not connect to database\n"+exception.ToString(), "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                System.Windows.Forms.Application.Exit();
+            }
+
         }
 
         private void addButton_Click(object sender, EventArgs e)

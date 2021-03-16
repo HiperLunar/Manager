@@ -243,7 +243,7 @@ namespace Manager
             this.listViewAddress.HideSelection = false;
             this.listViewAddress.Location = new System.Drawing.Point(897, 86);
             this.listViewAddress.Name = "listViewAddress";
-            this.listViewAddress.Size = new System.Drawing.Size(445, 218);
+            this.listViewAddress.Size = new System.Drawing.Size(555, 218);
             this.listViewAddress.TabIndex = 21;
             this.listViewAddress.UseCompatibleStateImageBehavior = false;
             this.listViewAddress.View = System.Windows.Forms.View.Details;
@@ -256,7 +256,7 @@ namespace Manager
             // columnHeaderAddressInformation
             // 
             this.columnHeaderAddressInformation.Text = "information";
-            this.columnHeaderAddressInformation.Width = 200;
+            this.columnHeaderAddressInformation.Width = 320;
             // 
             // columnHeaderAddressIsCommercial
             // 
@@ -274,7 +274,7 @@ namespace Manager
             // 
             // buttonEditAddress
             // 
-            this.buttonEditAddress.Location = new System.Drawing.Point(1348, 86);
+            this.buttonEditAddress.Location = new System.Drawing.Point(1458, 86);
             this.buttonEditAddress.Name = "buttonEditAddress";
             this.buttonEditAddress.Size = new System.Drawing.Size(112, 34);
             this.buttonEditAddress.TabIndex = 23;
@@ -301,7 +301,7 @@ namespace Manager
             this.listViewDepartment.HideSelection = false;
             this.listViewDepartment.Location = new System.Drawing.Point(897, 338);
             this.listViewDepartment.Name = "listViewDepartment";
-            this.listViewDepartment.Size = new System.Drawing.Size(445, 212);
+            this.listViewDepartment.Size = new System.Drawing.Size(555, 212);
             this.listViewDepartment.TabIndex = 25;
             this.listViewDepartment.UseCompatibleStateImageBehavior = false;
             this.listViewDepartment.View = System.Windows.Forms.View.Details;
@@ -319,16 +319,16 @@ namespace Manager
             // columnHeaderDepartmentDescription
             // 
             this.columnHeaderDepartmentDescription.Text = "description";
-            this.columnHeaderDepartmentDescription.Width = 150;
+            this.columnHeaderDepartmentDescription.Width = 170;
             // 
             // columnHeaderDepartmentUserName
             // 
             this.columnHeaderDepartmentUserName.Text = "owner";
-            this.columnHeaderDepartmentUserName.Width = 70;
+            this.columnHeaderDepartmentUserName.Width = 150;
             // 
             // buttonEditDepartment
             // 
-            this.buttonEditDepartment.Location = new System.Drawing.Point(1348, 338);
+            this.buttonEditDepartment.Location = new System.Drawing.Point(1458, 338);
             this.buttonEditDepartment.Name = "buttonEditDepartment";
             this.buttonEditDepartment.Size = new System.Drawing.Size(112, 34);
             this.buttonEditDepartment.TabIndex = 26;
@@ -345,8 +345,8 @@ namespace Manager
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
-            this.ClientSize = new System.Drawing.Size(1470, 581);
+            this.AutoValidate = System.Windows.Forms.AutoValidate.Disable;
+            this.ClientSize = new System.Drawing.Size(1582, 581);
             this.Controls.Add(this.buttonEditDepartment);
             this.Controls.Add(this.listViewDepartment);
             this.Controls.Add(this.label7);
@@ -367,6 +367,7 @@ namespace Manager
             this.Controls.Add(this.label1);
             this.Controls.Add(this.removeButton);
             this.Controls.Add(this.addButton);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.MaximizeBox = false;
             this.Name = "Manager";
             this.Text = "Manager";
